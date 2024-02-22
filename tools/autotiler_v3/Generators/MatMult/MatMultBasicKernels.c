@@ -29,9 +29,12 @@ static inline unsigned int __attribute__((always_inline)) ChunkSize(unsigned int
         unsigned int Log2Core;
         unsigned int Chunk;
 
-        if (CoreCountDynamic) NCore = ActiveCore; else NCore = gap_ncore();
+        if (CoreCountDynamic) NCore = ActiveCore; else NCore = gap_ncore(); //gap_ncore restituisce sempre 8, il numero di cores
+        printf("NCore=gap_ncore() in function ChunkSize: %d\n", NCore);
         Log2Core = gap_fl1(NCore);
+        printf("Log2Core in function Chunksize: %d\n", Log2Core);
         Chunk = (X>>Log2Core) + ((X&(NCore-1))!=0);
+        printf("Chunk in ChunkSize function: %d\n", Chunk);
         return Chunk;
 }
 
@@ -199,9 +202,7 @@ void KerMatMultParallelVectorialf16_v2(KerMatMultParallelf16_ArgT *Arg)
 
 #endif
 
-void KerMatMultParallel32(KerMatMultParallel32_ArgT *Arg)
-
-{
+void KerMatMultParallel32(KerMatMultParallel32_ArgT *Arg){
     int * __restrict__ In1 = Arg->In1;
     unsigned int W_In1 = Arg->W_In1;
     unsigned int H_In1 = Arg->H_In1;
@@ -238,6 +239,7 @@ void KerMatMultParallel32(KerMatMultParallel32_ArgT *Arg)
 void KerMatMultParallel16(KerMatMultParallel16_ArgT *Arg)
 
 {
+        printf("Entering KerMatMultParallel16.\n");
     short int * __restrict__ In1 = Arg->In1;
     unsigned int W_In1 = Arg->W_In1;
     unsigned int H_In1 = Arg->H_In1;
@@ -251,10 +253,15 @@ void KerMatMultParallel16(KerMatMultParallel16_ArgT *Arg)
     unsigned int H_In2 = W_In1;
     unsigned int H_Out = H_In1;
     unsigned int Line, Col, i;
+    printf("W_In2 check in KerMatMultParallel16: %d\n", W_In2);
+    printf("Variables done KerMatMultParallel16.\n");
 
         unsigned int CoreId = gap_coreid();
+        printf("CoreId: %d\n", CoreId);
         unsigned int ChunkCell = ChunkSize(W_In2);
+        printf("ChunkCell: %d\n", ChunkCell);
         unsigned int First = CoreId*ChunkCell, Last  = Min(W_In2, First+ChunkCell);
+        printf("Starting for cycle KerMatMultParallel16.\n");
 
     // for (Col=0; Col<W_In2; Col++) {
     for (Col=First; Col<Last; Col++) {
